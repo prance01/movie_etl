@@ -1,0 +1,48 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: fetch-top1kratingmovie
+spec:
+  jobTemplate:
+    metadata:
+      name: fetch-top1kratingmovie 
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: shared-data
+            emptyDir: {}
+          initContainers:
+          - image : init-downloader
+            name: init-downloader
+            env:
+            - name: DATA_FOLDER
+              value: /data
+            volumeMounts:
+            - name: shared-data
+              mountPath: /data
+          containers:
+          - image:  top1k-rating-movie
+            name: top1k-rating-movie
+            env: 
+            - name: DATA_FOLDER
+              value: /data
+            - name: DB_HOST
+              value: postgres
+            - name: DB_ACCOUNT
+              value: postgres
+            - name: DB_PASSWORD
+              value: appseed
+            - name: DB_SCHEMA
+              value: postgres
+            - name: DB_TABLE
+              value: top1kmovies
+            volumeMounts:
+            - name: shared-data
+              mountPath: /data
+            resources: {}
+          restartPolicy: OnFailure
+  schedule: 0 19 * * *
+  concurrencyPolicy: Replace
+  suspend: false
+status: {}

@@ -1,0 +1,1 @@
+docker build -t top1k-rating-movie .
